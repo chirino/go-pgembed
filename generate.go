@@ -1,5 +1,6 @@
 //go:build !windows
-//go:generate ./build_rust.sh
+
+//go:generate ./generate.sh
 
 package pgembed
 
