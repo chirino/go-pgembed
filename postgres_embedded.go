@@ -9,7 +9,7 @@ package pgembed
 
 // Common linker flags needed by Rust standard library and dependencies.
 // Adjust if your Rust code has other specific system dependencies.
-#cgo darwin LDFLAGS: -L./libs/darwin_arm64 -lrust_pg_embedded_lib -ldl -lm -framework Security -framework CoreFoundation -framework SystemConfiguration -llzma
+#cgo darwin LDFLAGS: -L./libs/darwin_arm64 -lrust_pg_embedded_lib -ldl -lm -framework Security -framework CoreFoundation -framework SystemConfiguration -llzma -mmacosx-version-min=15.1
 #cgo linux LDFLAGS: -L./libs/linux_amd64 -lrust_pg_embedded_lib -ldl -lm -lrt -lpthread -llzma
 #cgo windows LDFLAGS: -L./libs/windows_amd64 -lrust_pg_embedded_lib -lws2_32 -luserenv -ladvapi32 -lbcrypt -lntdll -llzma
 
