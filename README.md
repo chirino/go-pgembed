@@ -41,7 +41,6 @@ func main() {
 	}
 	dsn, err := pg.ConnectionString("lanzadm")
 
-	// Use sqlx to create a table and insert data
 	db, err := sqlx.Connect("postgres", dsn)
 	if err != nil {
 		log.Fatalf("sqlx.Connect(%s) failed: %v", dsn, err)
