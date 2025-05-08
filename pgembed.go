@@ -3,9 +3,9 @@ package pgembed
 /*
 // These CGO flags assume the Rust library has been compiled and is available.
 // You need to compile the Rust library first:
-//   cd rust_lib && cargo build --release && cd ..
-// Then, ensure the library path and name are correct for your OS.
-// The library will be `librust_pg_embedded_lib.a` (or .lib on Windows).
+//
+//     go generate
+//
 
 // Common linker flags needed by Rust standard library and dependencies.
 // Adjust if your Rust code has other specific system dependencies.
