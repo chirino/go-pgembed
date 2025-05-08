@@ -179,7 +179,7 @@ func (pg *EmbeddedPostgres) ConnectionString(dbName string) (string, error) {
 	}
 	defer C.pg_embedded_free_string(cConnStr)
 
-	return C.GoString(cConnStr), nil
+	return C.GoString(cConnStr) + "?sslmode=disable", nil
 }
 
 // CreateDatabase creates a new database in the embedded instance.
