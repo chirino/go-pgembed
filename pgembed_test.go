@@ -118,7 +118,7 @@ func TestDatabaseOperations(t *testing.T) {
 	if connStr == "" {
 		t.Errorf("ConnectionString(%s) returned an empty string", testDbName)
 	}
-	
+
 	// Use sqlx to create a table and insert data
 	db, err := sqlx.Connect("postgres", connStr)
 	if err != nil {
