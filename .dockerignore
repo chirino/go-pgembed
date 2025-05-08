@@ -1,0 +1,26 @@
+# Ignore Git files
+.git/
+.gitignore
+
+# Ignore Docker related files
+.dockerignore
+Dockerfile
+
+# Ignore build output directories (both top-level and within rust_lib)
+target/
+rust_lib/target/
+libs/
+
+# Ignore IDE/Editor specific files
+.idea/
+.vscode/
+
+# Ignore Go project files (assuming they are not needed for the Rust build)
+*.go
+go.mod
+go.sum
+internal/
+
+# Ignore Markdown files and logs
+*.md
+*.log 

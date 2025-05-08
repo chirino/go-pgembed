@@ -1,4 +1,4 @@
-package gopostgresembedded
+package pgembed
 
 import (
 	"os"
