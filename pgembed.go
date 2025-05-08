@@ -20,7 +20,13 @@ package pgembed
 
 typedef struct RustEmbeddedPg RustEmbeddedPg; // Opaque struct
 
-RustEmbeddedPg* pg_embedded_create_and_start(
+// Define the result struct to match Rust's PgStartResult
+typedef struct {
+    RustEmbeddedPg* pg_ptr;
+    char* error_msg;
+} PgStartResult;
+
+PgStartResult pg_embedded_create_and_start(
     const char* data_dir_str,
     const char* runtime_dir_str,
     unsigned short port,
@@ -80,16 +86,12 @@ func New(config Config) (*EmbeddedPostgres, error) {
 		return nil, errors.New("PostgreSQL version must be specified in Config")
 	}
 
-	// cVersion := C.CString(config.Version)
-	// defer C.free(unsafe.Pointer(cVersion))
-
 	var cDataDir *C.char
 	if config.DataDir != "" {
 		absDataDir, err := filepath.Abs(config.DataDir)
 		if err != nil {
 			return nil, fmt.Errorf("failed to get absolute path for DataDir: %w", err)
 		}
-		// Ensure directory exists if specified, as postgresql-embedded might expect it.
 		if err := os.MkdirAll(absDataDir, 0750); err != nil {
 			return nil, fmt.Errorf("failed to create DataDir %s: %w", absDataDir, err)
 		}
@@ -116,22 +118,34 @@ func New(config Config) (*EmbeddedPostgres, error) {
 		defer C.free(unsafe.Pointer(cPassword))
 	}
 
-	cInstance := C.pg_embedded_create_and_start(
+	// Call the modified Rust function which returns PgStartResult struct by value
+	cResult := C.pg_embedded_create_and_start(
 		cDataDir,
 		cRuntimeDir,
 		C.ushort(config.Port),
 		cPassword,
 	)
 
-	if cInstance == nil {
-		return nil, errors.New("failed to create and start embedded PostgreSQL instance. " +
-			"Check console for Rust panic messages or logs. " +
-			"Ensure PostgreSQL binaries can be downloaded/run (internet may be required for first download of a version). " +
-			"Common issues: invalid version, port conflict, disk space, permissions, or timeout during download/setup.")
+	// Check if Rust returned an error message
+	if cResult.error_msg != nil {
+		errMsg := C.GoString(cResult.error_msg)
+		C.pg_embedded_free_string(cResult.error_msg) // Free the error message string from Rust
+
+		// If pg_ptr was somehow non-null, try to stop it (defensive)
+		if cResult.pg_ptr != nil {
+			C.pg_embedded_stop(cResult.pg_ptr)
+		}
+		return nil, fmt.Errorf("failed to create/start embedded PostgreSQL (from Rust): %s", errMsg)
 	}
 
-	pg := &EmbeddedPostgres{instance: cInstance, config: config}
-	runtime.SetFinalizer(pg, (*EmbeddedPostgres).Stop) // Ensure Stop is called on GC if not explicitly called.
+	// If no error message, but pg_ptr is null, this is an unexpected state
+	if cResult.pg_ptr == nil {
+		panic("received null pg_ptr without error message")
+	}
+
+	// Success case
+	pg := &EmbeddedPostgres{instance: cResult.pg_ptr, config: config}
+	runtime.SetFinalizer(pg, (*EmbeddedPostgres).Stop)
 	return pg, nil
 }
 
