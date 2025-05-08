@@ -28,52 +28,66 @@ unsafe fn c_char_ptr_to_string(ptr: *const c_char) -> Result<String, std::str::U
 #[no_mangle]
 pub extern "C" fn pg_embedded_create_and_start(
     data_dir_c: *const c_char,
-    runtime_dir_c: *const c_char,
+    _runtime_dir_c: *const c_char,
     port: u16,
     password_c: *const c_char,
 ) -> *mut EmbeddedPg {
+    eprintln!("pg_embedded: pg_embedded_create_and_start called");
     let mut settings = Settings::default();
     settings.timeout = Some(Duration::from_secs(90)); // Increased timeout for setup/start
 
     if !data_dir_c.is_null() {
         if let Ok(s) = unsafe { c_char_ptr_to_string(data_dir_c) } {
             if !s.is_empty() {
+                eprintln!("pg_embedded: data_dir: {}", s);
                 settings.data_dir = PathBuf::from(s);
+            } else {
+                eprintln!("pg_embedded: data_dir_c was provided but is an empty string");
             }
+        } else {
+            eprintln!("pg_embedded: Failed to convert data_dir_c to string");
         }
-    }
-
-    if !runtime_dir_c.is_null() {
-        if let Ok(s) = unsafe { c_char_ptr_to_string(runtime_dir_c) } {
-            if !s.is_empty() {
-                // ... existing code ...
-            }
-        }
+    } else {
+        eprintln!("pg_embedded: data_dir_c is null, using default: {:?}", settings.data_dir);
     }
 
     if port > 0 {
         settings.port = port;
+        eprintln!("pg_embedded: effective port: {}", settings.port);
+    } else {
+        eprintln!("pg_embedded: port is 0 or less, using default: {}", settings.port);
     }
 
     if !password_c.is_null() {
         if let Ok(s) = unsafe { c_char_ptr_to_string(password_c) } {
             if !s.is_empty() {
+                eprintln!("pg_embedded: password is set");
                 settings.password = s;
+            } else {
+                eprintln!("pg_embedded: password_c was provided but is an empty string");
             }
+        } else {
+            eprintln!("pg_embedded: Failed to convert password_c to string");
         }
+    } else {
+        eprintln!("pg_embedded: password_c is null, no password will be set");
     }
 
     let mut pg = BlockingPostgresql::new(settings);
 
-    if pg.setup().is_err() {
-        // Consider logging errors here from Rust side for easier debugging
-        // e.g. eprintln!("pg_embedded: Setup failed");
+    eprintln!("pg_embedded: Calling setup()...");
+    if let Err(e) = pg.setup() {
+        eprintln!("pg_embedded: Setup failed: {:?}", e);
         return std::ptr::null_mut();
     }
-    if pg.start().is_err() {
-        // e.g. eprintln!("pg_embedded: Start failed");
+    eprintln!("pg_embedded: Setup successful.");
+
+    eprintln!("pg_embedded: Calling start()...");
+    if let Err(e) = pg.start() {
+        eprintln!("pg_embedded: Start failed: {:?}", e);
         return std::ptr::null_mut();
     }
+    eprintln!("pg_embedded: Start successful.");
 
     Box::into_raw(Box::new(pg))
 }

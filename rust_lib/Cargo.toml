@@ -7,5 +7,6 @@ edition = "2021"
 crate-type = ["staticlib"] # Compile as a static library for CGO
 
 [dependencies]
-postgresql_embedded = { version = "0.18.3", default-features = false, features = ["blocking", "rustls"] }
+postgresql_embedded = { version = "0.18.3", default-features = false, features = ["blocking", "rustls", "theseus"] }
 once_cell = "1.19" # For any static/lazy initialization if needed (not strictly used in this simple version)
+url = "2.5.2"
