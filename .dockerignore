@@ -6,9 +6,9 @@
 .dockerignore
 Dockerfile
 
-# Ignore build output directories (both top-level and within rust_lib)
+# Ignore build output directories (both top-level and within rust)
 target/
-rust_lib/target/
+rust/target/
 libs/
 
 # Ignore IDE/Editor specific files

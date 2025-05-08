@@ -2,14 +2,14 @@
 set -e
 
 # Ensure this script is run from the project root
-if [ ! -f "go.mod" ] || [ ! -d "rust_lib" ]; then
+if [ ! -f "go.mod" ] || [ ! -d "rust" ]; then
     echo "Error: This script must be run from the root of the gopostgresembedded project."
     exit 1
 fi
 
-RUST_LIB_DIR="rust_lib"
+RUST_LIB_DIR="rust"
 OUTPUT_DIR="libs"
-LIB_NAME="librust_pg_embedded_lib" # Assumes 'name' in rust_lib/Cargo.toml
+LIB_NAME="libgo_pgembed_lib" # Assumes 'name' in rust/Cargo.toml
 
 
 # --- Build natively for macOS ARM64 (Apple Silicon) ---
