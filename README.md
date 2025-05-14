@@ -5,6 +5,19 @@ bundled with your application, or downloaded on demand.
 
 See [theseus-rs/postgresql-embedded](https://github.com/theseus-rs/postgresql-embedded/blob/main/README.md) for more information.
 
+### Supported Platforms
+
+- Linux x86_64
+- Darwin arm64
+
+If you can get `go generate` to build the rust lib for other platforms, please send a PR.
+
+### Install
+
+```
+go get github.com/chirino/go-pgembed
+```
+
 ### Example
 
 ```go
